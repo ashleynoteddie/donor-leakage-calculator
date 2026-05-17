@@ -139,7 +139,7 @@ if st.button("Process Pipeline Integrity Audit →", type="primary") or st.sessi
             max_replace_cost = max_lapsed * 2500
             
             # --- SILENT WEBHOOK LOGGER ---
-            if not st.session_state.data_logged and WEB_APP_URL != "https://script.google.com/macros/s/AKfycbz_hzQFlWhTPeaWs8_GX0MSZxWIji1DGvE44UHZwWKQLPpZ2eBhHly4B1u8WCnTGaa9XQ/exec"
+            if not st.session_state.data_logged and WEB_APP_URL != "https://script.google.com/macros/s/AKfycbz_hzQFlWhTPeaWs8_GX0MSZxWIji1DGvE44UHZwWKQLPpZ2eBhHly4B1u8WCnTGaa9XQ/exec":
                 payload = {
                     "organization": org_name,
                     "name": user_name,
