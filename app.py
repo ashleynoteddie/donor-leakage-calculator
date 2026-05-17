@@ -1,4 +1,6 @@
 import streamlit as st
+import requests
+import json
 
 # 1. Page Configuration & Branded Styling
 st.set_page_config(page_title="The NSQ Pipeline Integrity Audit", page_icon="⚡", layout="centered")
@@ -11,6 +13,9 @@ st.markdown("""
     and the systemic bottlenecks preventing predictable, non-status-quo revenue growth.
 """)
 st.write("---")
+
+# PASTE YOUR GOOGLE DEPLOYMENT WEB APP URL HERE (Ends in /exec)
+WEB_APP_URL = "PASTE_YOUR_WEB_APP_URL_HERE"
 
 # 2. Collect Intake Inputs (The Form)
 org_name = st.text_input("Name of Organization", value="Save The World")
@@ -35,7 +40,6 @@ major_gift_tier = st.selectbox(
     tier_options
 )
 
-# Handle custom text input if they select the top '+' tier
 if "+" in major_gift_tier:
     clean_val = int(major_gift_tier.replace("$", "").replace(",", "").replace("+", ""))
     major_gift_value = st.number_input(f"What is your specific anchor tier threshold ($)?", min_value=clean_val, step=5000, value=clean_val)
@@ -63,6 +67,8 @@ st.write("---")
 # Initialize session state for the email gate
 if "form_submitted" not in st.session_state:
     st.session_state.form_submitted = False
+if "data_logged" not in st.session_state:
+    st.session_state.data_logged = False
 
 # Step 1: Trigger Audit Processing
 if st.button("Process Pipeline Integrity Audit →", type="primary") or st.session_state.form_submitted:
@@ -132,9 +138,23 @@ if st.button("Process Pipeline Integrity Audit →", type="primary") or st.sessi
             min_replace_cost = min_lapsed * 2500
             max_replace_cost = max_lapsed * 2500
             
-            # --- DISPLAY AUDIT RESULTS PANEL ---
-            st.toast(f"Audit finalized for {user_email}!", icon="⚡")
+            # --- SILENT WEBHOOK LOGGER ---
+            if not st.session_state.data_logged and WEB_APP_URL != "https://script.google.com/macros/s/AKfycbz_hzQFlWhTPeaWs8_GX0MSZxWIji1DGvE44UHZwWKQLPpZ2eBhHly4B1u8WCnTGaa9XQ/exec"
+                payload = {
+                    "organization": org_name,
+                    "name": user_name,
+                    "role": user_role,
+                    "email": user_email,
+                    "deficit": f"${max_ltv_impact:,.2f}"
+                }
+                try:
+                    requests.post(WEB_APP_URL, data=json.dumps(payload))
+                    st.session_state.data_logged = True
+                    st.toast("Audit compiled and securely saved!", icon="⚡")
+                except:
+                    pass # Quietly proceed if connection stumbles so user experience never blocks
             
+            # --- DISPLAY AUDIT RESULTS PANEL ---
             if status_tier == "Elite Health":
                 st.success(f"✨ {status_tier} Verification for {org_name}")
                 col1, col2 = st.columns(2)
@@ -164,24 +184,24 @@ if st.button("Process Pipeline Integrity Audit →", type="primary") or st.sessi
                     
                 st.markdown(f"""
                 ### 🧠 NSQ Strategic Diagnosis & Action Items for {user_name}:
-                * **The Benchmark:** Evaluated against a standard **{total_database:,} active pipeline matrix**, your selections indicate that **{min_lapsed} to {max_lapsed} core revenue relationships** have silently drifted away.
+                * **The Benchmark:** Evaluated against a standard **{total_database:,} active donor profile**, your selections indicate that **{min_lapsed} to {max_lapsed} core revenue relationships** have silently drifted away.
                 * **The NSQ Perspective:** Chasing new, unvetted donor acquisition to fill this gap is a status-quo trap that drains team capacity. Your most efficient, immediate pathway to budget optimization sits right on your baseline bench.
-                * **Immediate Action:** Implement a targeted, non-transactional **Relationship Stabilization Blueprint**. A structured, high-stewardship touchpoint sequence over the next 30 days can cleanly reactive these warm accounts.
+                * **Immediate Action:** Implement a targeted, non-transactional **Relationship Stabilization Blueprint**. A structured, high-stewardship touchpoint sequence over the next 30 days can cleanly reactivate these warm accounts.
                 """)
                 
             else:
                 st.error(f"🚨 {status_tier} Systemic Pipeline Leakage for {org_name}")
                 col1, col2 = st.columns(2)
                 with col1:
-                    st.metric(label=f"Conservative Immediate Bleed ({min_lapsed} Accounts)", value=f"${min_stalled_revenue:,.2f}")
+                    st.metric(label=f"Conservative Immediate Bleed ({min_lapsed} Donors)", value=f"${min_stalled_revenue:,.2f}")
                     st.metric(label="3-Year Compounded Deficit", value=f"${min_ltv_impact:,.2f}")
                 with col2:
-                    st.metric(label=f"Max Potential Structural Loss ({max_lapsed} Accounts)", value=f"${max_stalled_revenue:,.2f}")
+                    st.metric(label=f"Max Potential Structural Loss ({max_lapsed} Donors)", value=f"${max_stalled_revenue:,.2f}")
                     st.metric(label="Est. Account Replacement Cost", value=f"${max_replace_cost:,.2f}")
                     
                 st.markdown(f"""
                 ### 🧠 NSQ Strategic Diagnosis & Action Items for {user_name}:
-                * **The Benchmark:** Analyzed against a standard **{total_database:,} active pipeline matrix**, your data indicates a deep architectural breakdown impacting **{min_lapsed} to {max_lapsed} anchor relationships**.
+                * **The Benchmark:** Analyzed against a standard **{total_database:,} active donor matrix**, your data indicates a deep architectural breakdown impacting **{min_lapsed} to {max_lapsed} anchor relationships**.
                 * **The NSQ Perspective:** This degree of decay is a lagging indicator of structural fatigue. Simply screaming louder for major gifts or hiring a generic fundraising agency will not patch this hull. You have a systemic engagement design flaw.
                 * **Immediate Action:** You require an immediate, high-touch **Priority Pipeline Rescue Mechanism** to re-architect how your leadership team bridges, interfaces, and locks in long-term alignment with core ecosystem stakeholders.
                 """)
