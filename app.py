@@ -15,7 +15,7 @@ st.markdown("""
 st.write("---")
 
 # PASTE YOUR GOOGLE DEPLOYMENT WEB APP URL HERE (Ends in /exec)
-WEB_APP_URL = "PASTE_YOUR_WEB_APP_URL_HERE"
+WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz_hzQFlWhTPeaWs8_GX0MSZxWIji1DGvE44UHZwWKQLPpZ2eBhHly4B1u8WCnTGaa9XQ/exec"
 
 # 2. Collect Intake Inputs (The Form)
 org_name = st.text_input("Name of Organization", value="Save The World")
@@ -64,7 +64,7 @@ lapsed_range = st.selectbox(
 
 st.write("---")
 
-# Initialize session state for the email gate
+# Initialize session state variables
 if "form_submitted" not in st.session_state:
     st.session_state.form_submitted = False
 if "data_logged" not in st.session_state:
@@ -138,8 +138,8 @@ if st.button("Process Pipeline Integrity Audit →", type="primary") or st.sessi
             min_replace_cost = min_lapsed * 2500
             max_replace_cost = max_lapsed * 2500
             
-            # --- SILENT WEBHOOK LOGGER ---
-            if not st.session_state.data_logged and WEB_APP_URL != "https://script.google.com/macros/s/AKfycbzaW_zpDby0Xy_dtPafEEAWdCIIRxa3mWtexLaiRAdXHhY6L0sR--Ck3dzZjM_cwfrGbQ/exec":
+            # --- DIAGNOSTIC LOGGER ---
+            if not st.session_state.data_logged and WEB_APP_URL != "PASTE_YOUR_WEB_APP_URL_HERE":
                 payload = {
                     "organization": org_name,
                     "name": user_name,
@@ -147,7 +147,7 @@ if st.button("Process Pipeline Integrity Audit →", type="primary") or st.sessi
                     "email": user_email,
                     "deficit": f"${max_ltv_impact:,.2f}"
                 }
-             try:
+                try:
                     response = requests.post(WEB_APP_URL, data=json.dumps(payload), timeout=10)
                     st.session_state.data_logged = True
                     st.toast("Audit processing triggered!", icon="⚡")
