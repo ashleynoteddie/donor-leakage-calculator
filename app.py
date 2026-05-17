@@ -151,8 +151,6 @@ if st.button("Process Pipeline Integrity Audit →", type="primary") or st.sessi
                     response = requests.post(WEB_APP_URL, data=json.dumps(payload), timeout=10)
                     st.session_state.data_logged = True
                     st.toast("Audit processing triggered!", icon="⚡")
-                    st.write(f"🔬 Debug Status Code: {response.status_code}")
-                    st.write(f"🔬 Debug Response Text: {response.text}")
                 except Exception as e:
                     st.error(f"❌ Network Connection Error: {str(e)}")
             
