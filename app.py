@@ -147,12 +147,16 @@ if st.button("Process Pipeline Integrity Audit →", type="primary") or st.sessi
                     "email": user_email,
                     "deficit": f"${max_ltv_impact:,.2f}"
                 }
-                try:
-                    requests.post(WEB_APP_URL, data=json.dumps(payload))
+              try:
+                    response = requests.post(WEB_APP_URL, data=json.dumps(payload), timeout=10)
                     st.session_state.data_logged = True
-                    st.toast("Audit compiled and securely saved!", icon="⚡")
-                except:
-                    pass # Quietly proceed if connection stumbles so user experience never blocks
+                    st.toast("Audit processing triggered!", icon="⚡")
+                    
+                    # DIAGNOSTIC FEEDBACK: This will print the status on your live app
+                    st.write(f"🔬 Debug Status Code: {response.status_code}")
+                    st.write(f"🔬 Debug Response Text: {response.text}")
+                except Exception as e:
+                    st.error(f"❌ Network Connection Error: {str(e)}")
             
             # --- DISPLAY AUDIT RESULTS PANEL ---
             if status_tier == "Elite Health":
